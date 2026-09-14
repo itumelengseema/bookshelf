@@ -5,6 +5,10 @@ class BookshelfApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Placeholder();
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      title: 'Bookshelf',
+      home: Scaffold(body: Center(child: Text('BookShelf'))),
+    );
   }
 }
