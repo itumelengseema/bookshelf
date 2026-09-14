@@ -1,7 +1,7 @@
+import 'package:bookshelf/search/repository/search_repository.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:bookshelf/network/http_client.dart';
-import 'package:bookshelf/search/repository/search_repository.dart';
 
 class MockHttpClient extends Mock implements HttpClient {}
 
@@ -17,7 +17,7 @@ void main() {
   group('SearchRepository.searchBooks', () {
     test('returns books for a successful response', () async {
       when(() => httpClient.get(any())).thenAnswer(
-        (_) async => const HttpResponse(
+        (_) async => HttpResponse(
           statusCode: 200,
           body: '''
           {
@@ -45,7 +45,7 @@ void main() {
 
     test('throws on HTTP error response', () async {
       when(() => httpClient.get(any())).thenAnswer(
-        (_) async => const HttpResponse(statusCode: 500, body: 'Server error'),
+        (_) async => HttpResponse(statusCode: 500, body: 'Server error'),
       );
 
       expect(
@@ -56,7 +56,7 @@ void main() {
 
     test('throws on malformed JSON', () async {
       when(() => httpClient.get(any())).thenAnswer(
-        (_) async => const HttpResponse(statusCode: 200, body: 'not-json'),
+        (_) async => HttpResponse(statusCode: 200, body: 'not-json'),
       );
 
       expect(
@@ -67,7 +67,7 @@ void main() {
 
     test('returns an empty list for an empty result set', () async {
       when(() => httpClient.get(any())).thenAnswer(
-        (_) async => const HttpResponse(
+        (_) async => HttpResponse(
           statusCode: 200,
           body: '''
           {
