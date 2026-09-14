@@ -1,5 +1,3 @@
-import 'dart:io';
-
 abstract interface class HttpClient {
   Future<HttpResponse> get(String url);
 }
