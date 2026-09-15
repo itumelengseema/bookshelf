@@ -22,7 +22,7 @@ void main() {
   group('BookDetailRepository.getBookDetail', () {
     test('returns book detail for a successful response', () async {
       when(() => httpClient.get(any())).thenAnswer(
-        (_) async => const HttpResponse(
+        (_) async => HttpResponse(
           statusCode: 200,
           body: '''
           {
@@ -46,7 +46,7 @@ void main() {
 
     test('throws on HTTP error response', () async {
       when(() => httpClient.get(any())).thenAnswer(
-        (_) async => const HttpResponse(statusCode: 404, body: 'Not found'),
+        (_) async => HttpResponse(statusCode: 404, body: 'Not found'),
       );
 
       expect(
@@ -57,7 +57,7 @@ void main() {
 
     test('throws on malformed JSON', () async {
       when(() => httpClient.get(any())).thenAnswer(
-        (_) async => const HttpResponse(statusCode: 200, body: 'not-json'),
+        (_) async => HttpResponse(statusCode: 200, body: 'not-json'),
       );
 
       expect(
