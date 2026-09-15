@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:bookshelf/network/http_client.dart';
+import 'package:bookshelf/search/services/open_library_remote_data_source.dart';
 import '../models/book_model.dart';
 import '../models/search_result_model.dart';
 
@@ -15,7 +16,10 @@ class SearchException implements Exception {
 class SearchRepository {
   final HttpClient httpClient;
 
-  SearchRepository({required this.httpClient});
+  SearchRepository({
+    required this.httpClient,
+    required OpenLibraryRemoteDataSource remoteDataSource,
+  });
 
   Future<SearchResult> searchBooks({
     required String query,

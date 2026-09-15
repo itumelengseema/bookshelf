@@ -15,6 +15,11 @@ void main() {
     httpClient = MockHttpClient();
 
     remoteDataSource = OpenLibraryRemoteDataSource(httpClient: httpClient);
+
+    repository = SearchRepository(
+      remoteDataSource: remoteDataSource,
+      httpClient: httpClient,
+    );
   });
 
   group('SearchRepository.searchBooks', () {
