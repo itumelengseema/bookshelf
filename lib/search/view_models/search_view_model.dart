@@ -13,10 +13,20 @@ class SearchViewModel extends ChangeNotifier {
 
   SearchState get state => _state;
 
+  String _currentQuery = '';
+  int _currentPage = 1;
+  int _totalResults = 0;
+  bool _isLoadingMore = false;
+
   Timer? _debounce;
 
   Future<void> search(String query) async {
     final trimmedQuery = query.trim();
+
+    _currentQuery = trimmedQuery;
+    _currentPage = 1;
+    _totalResults = 0;
+    _isLoadingMore = false;
 
     if (trimmedQuery.isEmpty) {
       _state = const SearchInitial();
@@ -29,6 +39,8 @@ class SearchViewModel extends ChangeNotifier {
 
     try {
       final result = await repository.searchBooks(query: trimmedQuery, page: 1);
+
+      _totalResults = result.totalResults;
 
       if (result.books.isEmpty) {
         _state = const SearchEmpty();
@@ -50,6 +62,54 @@ class SearchViewModel extends ChangeNotifier {
     _debounce = Timer(const Duration(milliseconds: 450), () {
       search(query);
     });
+  }
+
+  Future<void> loadMore() async {
+    final currentState = _state;
+
+    if (currentState is! SearchResults) {
+      return;
+    }
+
+    if (_isLoadingMore) {
+      return;
+    }
+
+    if (currentState.books.length >= _totalResults) {
+      return;
+    }
+
+    _isLoadingMore = true;
+
+    _state = SearchResults(books: currentState.books, isLoadingMore: true);
+
+    notifyListeners();
+
+    try {
+      final nextPage = _currentPage + 1;
+
+      final result = await repository.searchBooks(
+        query: _currentQuery,
+        page: nextPage,
+      );
+
+      _currentPage = nextPage;
+
+      _state = SearchResults(books: [...currentState.books, ...result.books]);
+    } on SearchException {
+      _state = SearchResults(books: currentState.books);
+    } catch (_) {
+      _state = SearchResults(books: currentState.books);
+    } finally {
+      _isLoadingMore = false;
+      notifyListeners();
+    }
+  }
+
+  @visibleForTesting
+  void debugSetState(SearchState state) {
+    _state = state;
+    notifyListeners();
   }
 
   @override
