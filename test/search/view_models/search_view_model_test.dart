@@ -81,4 +81,27 @@ void main() {
 
     expect(viewModel.state, isA<SearchInitial>());
   });
+
+  test('debounces search input before calling repository', () async {
+    when(
+      () => repository.searchBooks(query: 'flutter', page: 1),
+    ).thenAnswer((_) async => const SearchResult(books: [], totalResults: 0));
+
+    viewModel.onSearchChanged('f');
+    viewModel.onSearchChanged('fl');
+    viewModel.onSearchChanged('flu');
+    viewModel.onSearchChanged('flut');
+    viewModel.onSearchChanged('flutter');
+
+    verifyNever(
+      () => repository.searchBooks(
+        query: any(named: 'query'),
+        page: any(named: 'page'),
+      ),
+    );
+
+    await Future<void>.delayed(const Duration(milliseconds: 500));
+
+    verify(() => repository.searchBooks(query: 'flutter', page: 1)).called(1);
+  });
 }
