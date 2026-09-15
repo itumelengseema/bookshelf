@@ -1,0 +1,17 @@
+import 'package:http/http.dart' as http;
+import 'package:bookshelf/network/http_client.dart';
+
+class AppHttpClient implements HttpClient {
+  final http.Client client;
+
+  AppHttpClient({http.Client? client}) : client = client ?? http.Client();
+
+  @override
+  Future<HttpResponse> get(String url) async {
+    final response = await client
+        .get(Uri.parse(url))
+        .timeout(const Duration(seconds: 15));
+
+    return HttpResponse(statusCode: response.statusCode, body: response.body);
+  }
+}
