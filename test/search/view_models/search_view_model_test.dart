@@ -14,6 +14,7 @@ void main() {
 
   setUp(() {
     repository = MockSearchRepository();
+
     viewModel = SearchViewModel(repository: repository);
   });
 
@@ -27,7 +28,7 @@ void main() {
 
   test('moves to results state when search succeeds', () async {
     when(() => repository.searchBooks(query: 'flutter', page: 1)).thenAnswer(
-      (_) async => SearchResult(
+      (_) async => const SearchResult(
         books: [
           Book(
             workId: 'OL1W',
@@ -44,12 +45,17 @@ void main() {
     await viewModel.search('flutter');
 
     expect(viewModel.state, isA<SearchResults>());
+
+    final state = viewModel.state as SearchResults;
+
+    expect(state.books.length, 1);
+    expect(state.books.first.title, 'Flutter Book');
   });
 
   test('moves to empty state when search returns no books', () async {
     when(
       () => repository.searchBooks(query: 'nothing', page: 1),
-    ).thenAnswer((_) async => SearchResult(books: [], totalResults: 0));
+    ).thenAnswer((_) async => const SearchResult(books: [], totalResults: 0));
 
     await viewModel.search('nothing');
 
@@ -64,9 +70,13 @@ void main() {
     await viewModel.search('flutter');
 
     expect(viewModel.state, isA<SearchError>());
+
+    final state = viewModel.state as SearchError;
+
+    expect(state.message, 'Network failed');
   });
 
-  test('clears results when query is empty', () async {
+  test('returns to initial state when query is empty', () async {
     await viewModel.search('');
 
     expect(viewModel.state, isA<SearchInitial>());
