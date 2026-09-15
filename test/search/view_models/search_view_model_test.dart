@@ -104,4 +104,69 @@ void main() {
 
     verify(() => repository.searchBooks(query: 'flutter', page: 1)).called(1);
   });
+
+  test('loads the next page and appends results', () async {
+    when(() => repository.searchBooks(query: 'flutter', page: 1)).thenAnswer(
+      (_) async => const SearchResult(
+        books: [
+          Book(
+            workId: 'OL1W',
+            title: 'Flutter One',
+            authors: ['Author One'],
+            firstPublishYear: 2020,
+            coverId: 1,
+          ),
+        ],
+        totalResults: 2,
+      ),
+    );
+
+    when(() => repository.searchBooks(query: 'flutter', page: 2)).thenAnswer(
+      (_) async => const SearchResult(
+        books: [
+          Book(
+            workId: 'OL2W',
+            title: 'Flutter Two',
+            authors: ['Author Two'],
+            firstPublishYear: 2021,
+            coverId: 2,
+          ),
+        ],
+        totalResults: 2,
+      ),
+    );
+
+    await viewModel.search('flutter');
+    await viewModel.loadMore();
+
+    final state = viewModel.state as SearchResults;
+
+    expect(state.books.length, 2);
+    expect(state.books.first.title, 'Flutter One');
+    expect(state.books.last.title, 'Flutter Two');
+
+    verify(() => repository.searchBooks(query: 'flutter', page: 2)).called(1);
+  });
+
+  test('does not load more when all results are already loaded', () async {
+    when(() => repository.searchBooks(query: 'flutter', page: 1)).thenAnswer(
+      (_) async => const SearchResult(
+        books: [
+          Book(
+            workId: 'OL1W',
+            title: 'Flutter One',
+            authors: ['Author One'],
+            firstPublishYear: 2020,
+            coverId: 1,
+          ),
+        ],
+        totalResults: 1,
+      ),
+    );
+
+    await viewModel.search('flutter');
+    await viewModel.loadMore();
+
+    verifyNever(() => repository.searchBooks(query: 'flutter', page: 2));
+  });
 }
