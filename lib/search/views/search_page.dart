@@ -1,8 +1,10 @@
+import 'package:auto_route/annotations.dart';
 import 'package:bookshelf/search/view_models/search_state.dart';
 import 'package:bookshelf/search/view_models/search_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+@RoutePage()
 class SearchPage extends StatelessWidget {
   const SearchPage({super.key});
 
