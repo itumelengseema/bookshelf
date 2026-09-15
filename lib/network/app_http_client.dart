@@ -1,26 +1,17 @@
-import 'dart:convert';
-
-import 'package:bookshelf/network/api_result.dart';
 import 'package:http/http.dart' as http;
+import 'package:bookshelf/network/http_client.dart';
 
-class AppHttpClient {
+class AppHttpClient implements HttpClient {
   final http.Client client;
 
   AppHttpClient({http.Client? client}) : client = client ?? http.Client();
 
-  Future<ApiResult<dynamic>> get(String url) async {
-    try {
-      final response = await client
-          .get(Uri.parse(url))
-          .timeout(const Duration(seconds: 15));
-      if (response.statusCode >= 200 && response.statusCode < 300) {
-        final decodedBody = jsonDecode(response.body);
-        return ApiSuccess(decodedBody);
-      }
+  @override
+  Future<HttpResponse> get(String url) async {
+    final response = await client
+        .get(Uri.parse(url))
+        .timeout(const Duration(seconds: 15));
 
-      return ApiFailure('Request failed with status: ${response.statusCode}');
-    } catch (error) {
-      return ApiFailure('Something went wrong: $error');
-    }
+    return HttpResponse(statusCode: response.statusCode, body: response.body);
   }
 }

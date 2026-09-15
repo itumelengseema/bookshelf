@@ -1,4 +1,5 @@
 import 'package:bookshelf/search/repository/search_repository.dart';
+import 'package:bookshelf/search/services/open_library_remote_data_source.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:bookshelf/network/http_client.dart';
@@ -8,10 +9,12 @@ class MockHttpClient extends Mock implements HttpClient {}
 void main() {
   late MockHttpClient httpClient;
   late SearchRepository repository;
+  late OpenLibraryRemoteDataSource remoteDataSource;
 
   setUp(() {
     httpClient = MockHttpClient();
-    repository = SearchRepository(httpClient: httpClient);
+
+    remoteDataSource = OpenLibraryRemoteDataSource(httpClient: httpClient);
   });
 
   group('SearchRepository.searchBooks', () {
