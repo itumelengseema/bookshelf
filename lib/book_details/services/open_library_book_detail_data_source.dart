@@ -1,6 +1,5 @@
 import 'dart:convert';
 
-import 'package:bookshelf/book_details/models/book_detail.dart';
 import 'package:bookshelf/book_details/repository/book_detail_repository.dart';
 import 'package:bookshelf/book_details/services/book_detail_remote_data_source.dart';
 import 'package:bookshelf/network/http_client.dart';
