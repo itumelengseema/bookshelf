@@ -1,9 +1,10 @@
 import 'package:bookshelf/search/models/book_model.dart';
+import 'package:bookshelf/search/models/search_result_model.dart';
 import 'package:bookshelf/search/repository/search_repository.dart';
 import 'package:bookshelf/search/view_models/search_state.dart';
 import 'package:bookshelf/search/view_models/search_view_model.dart';
 import 'package:bookshelf/search/views/search_page.dart';
-
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
@@ -35,45 +36,67 @@ void main() {
   }
 
   testWidgets('shows loading indicator while searching', (tester) async {
-    when(() => repository.searchBooks(query: 'flutter', page: 1)).thenAnswer((
-      _,
-    ) async {
-      await Future<void>.delayed(const Duration(seconds: 1));
+    final completer = Completer<SearchResult>();
 
-      throw const SearchException('Delayed response');
-    });
+    when(
+      () => repository.searchBooks(
+        query: any(named: 'query'),
+        page: any(named: 'page'),
+      ),
+    ).thenAnswer((_) => completer.future);
 
-    await tester.pumpWidget(buildTestWidget());
+    await tester.pumpWidget(
+      ChangeNotifierProvider<SearchViewModel>.value(
+        value: viewModel,
+        child: const MaterialApp(home: SearchPage()),
+      ),
+    );
 
     viewModel.search('flutter');
 
     await tester.pump();
 
     expect(find.byType(CircularProgressIndicator), findsOneWidget);
+
+    // Finish the fake request before the test ends.
+    completer.complete(SearchResult(books: [], totalResults: 0));
+
+    await tester.pumpAndSettle();
   });
 
   testWidgets('shows books when search returns results', (tester) async {
-    viewModel.debugSetState(
-      const SearchResults(
-        books: [
-          Book(
-            workId: 'OL1W',
-            title: 'Flutter in Action',
-            authors: ['Eric Windmill'],
-            firstPublishYear: 2020,
-            coverId: 123,
-          ),
-        ],
+    final book = Book(
+      workId: 'OL123W',
+      title: 'Flutter Apprentice',
+      authors: ['Eric Windmill'],
+      firstPublishYear: 2020,
+      coverId: null,
+    );
+
+    when(
+      () => repository.searchBooks(
+        query: any(named: 'query'),
+        page: any(named: 'page'),
+      ),
+    ).thenAnswer((_) async => SearchResult(books: [book], totalResults: 1));
+
+    await tester.pumpWidget(
+      ChangeNotifierProvider<SearchViewModel>.value(
+        value: viewModel,
+        child: const MaterialApp(home: SearchPage()),
       ),
     );
 
-    await tester.pumpWidget(buildTestWidget());
+    await viewModel.search('flutter');
 
-    expect(find.text('Flutter in Action'), findsOneWidget);
+    await tester.pump();
 
-    expect(find.text('Eric Windmill'), findsOneWidget);
+    expect(find.text('Flutter Apprentice'), findsOneWidget);
+
+    expect(find.textContaining('Eric Windmill'), findsOneWidget);
+
+    expect(find.textContaining('2020'), findsOneWidget);
   });
-
   testWidgets('shows empty message for no results', (tester) async {
     viewModel.debugSetState(const SearchEmpty());
 
