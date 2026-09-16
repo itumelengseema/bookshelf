@@ -1,9 +1,7 @@
 import 'package:auto_route/auto_route.dart';
-import 'package:bookshelf/book_details/repository/book_detail_repository.dart';
-import 'package:bookshelf/book_details/services/open_library_book_detail_data_source.dart';
+import 'package:bookshelf/app/app_dependencies.dart';
 import 'package:bookshelf/book_details/view_models/book_detail_state.dart';
 import 'package:bookshelf/book_details/view_models/book_detail_view_model.dart';
-import 'package:bookshelf/network/app_http_client.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../search/models/book_model.dart';
@@ -16,17 +14,11 @@ class BookDetailPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final httpClient = AppHttpClient();
-
-    final remoteDataSource = OpenLibraryBookDetailDataSource(
-      httpClient: httpClient,
-    );
-
-    final repository = BookDetailRepository(remoteDataSource: remoteDataSource);
+    final dependencies = context.read<AppDependencies>();
 
     return ChangeNotifierProvider(
       create: (_) =>
-          BookDetailViewModel(repository: repository)
+          dependencies.createBookDetailViewModel()
             ..loadBookDetail(workId: book.workId),
       child: _BookDetailView(book: book),
     );
