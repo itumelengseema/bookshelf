@@ -1,4 +1,5 @@
-import 'package:auto_route/annotations.dart';
+import 'package:auto_route/auto_route.dart';
+import 'package:bookshelf/app/router/app_router.dart';
 import 'package:bookshelf/search/view_models/search_state.dart';
 import 'package:bookshelf/search/view_models/search_view_model.dart';
 import 'package:flutter/material.dart';
@@ -104,7 +105,7 @@ class _ResultsList extends StatelessWidget {
             subtitle: Text('${book.authorDisplay}\n${book.yearDisplay}'),
             isThreeLine: true,
             onTap: () {
-              // Detail navigation later.
+              context.router.push(BookDetailRoute(book: book));
             },
             trailing: IconButton(
               onPressed: () {
