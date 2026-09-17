@@ -17,7 +17,17 @@ class SearchPage extends StatelessWidget {
     final state = viewModel.state;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Bookshelf')),
+      appBar: AppBar(
+        title: const Text('Bookshelf'),
+        actions: [
+          IconButton(
+            onPressed: () {
+              context.router.push(FavouritesRoute());
+            },
+            icon: Icon(Icons.favorite),
+          ),
+        ],
+      ),
       body: Column(
         children: [
           Padding(

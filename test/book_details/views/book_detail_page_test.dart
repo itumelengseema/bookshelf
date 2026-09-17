@@ -1,9 +1,16 @@
 import 'dart:async';
+
 import 'package:bookshelf/app/app_dependencies.dart';
+
 import 'package:bookshelf/book_details/repository/book_detail_repository.dart';
 import 'package:bookshelf/book_details/view_models/book_detail_view_model.dart';
 import 'package:bookshelf/book_details/views/book_detail_page.dart';
+
+// NEW
+import 'package:bookshelf/favourites/providers/favourites_provider.dart';
+import 'package:bookshelf/favourites/repository/favourites_repository.dart';
 import 'package:bookshelf/search/models/book_detail_model.dart';
+
 import 'package:bookshelf/search/models/book_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -14,10 +21,15 @@ class MockAppDependencies extends Mock implements AppDependencies {}
 
 class MockBookDetailRepository extends Mock implements BookDetailRepository {}
 
+class MockFavouritesRepository extends Mock implements FavouritesRepository {}
+
 void main() {
   late MockAppDependencies dependencies;
   late MockBookDetailRepository repository;
   late BookDetailViewModel viewModel;
+
+  late MockFavouritesRepository favouritesRepository;
+  late FavouritesProvider favouritesProvider;
 
   const testBook = Book(
     workId: 'OL123W',
@@ -29,16 +41,28 @@ void main() {
 
   setUp(() {
     dependencies = MockAppDependencies();
+
     repository = MockBookDetailRepository();
 
     viewModel = BookDetailViewModel(repository: repository);
+
+    favouritesRepository = MockFavouritesRepository();
+
+    favouritesProvider = FavouritesProvider(repository: favouritesRepository);
 
     when(() => dependencies.createBookDetailViewModel()).thenReturn(viewModel);
   });
 
   Widget createWidget() {
-    return Provider<AppDependencies>.value(
-      value: dependencies,
+    return MultiProvider(
+      providers: [
+        Provider<AppDependencies>.value(value: dependencies),
+
+        ChangeNotifierProvider<FavouritesProvider>.value(
+          value: favouritesProvider,
+        ),
+      ],
+
       child: const MaterialApp(home: BookDetailPage(book: testBook)),
     );
   }
@@ -91,6 +115,8 @@ void main() {
     expect(find.text('Programming'), findsOneWidget);
 
     expect(find.text('Software Engineering'), findsOneWidget);
+
+    expect(find.byIcon(Icons.favorite_border), findsOneWidget);
   });
 
   testWidgets('shows error message when book detail loading fails', (

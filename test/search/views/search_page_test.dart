@@ -1,10 +1,12 @@
+import 'dart:async';
+
+import 'package:bookshelf/favourites/providers/favourites_provider.dart';
+import 'package:bookshelf/favourites/repository/favourites_repository.dart';
 import 'package:bookshelf/search/models/book_model.dart';
 import 'package:bookshelf/search/models/search_result_model.dart';
 import 'package:bookshelf/search/repository/search_repository.dart';
-import 'package:bookshelf/search/view_models/search_state.dart';
 import 'package:bookshelf/search/view_models/search_view_model.dart';
 import 'package:bookshelf/search/views/search_page.dart';
-import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
@@ -12,26 +14,36 @@ import 'package:provider/provider.dart';
 
 class MockSearchRepository extends Mock implements SearchRepository {}
 
+class MockFavouritesRepository extends Mock implements FavouritesRepository {}
+
 void main() {
   late MockSearchRepository repository;
   late SearchViewModel viewModel;
+
+  late MockFavouritesRepository favouritesRepository;
+  late FavouritesProvider favouritesProvider;
 
   setUp(() {
     repository = MockSearchRepository();
 
     viewModel = SearchViewModel(repository: repository);
+
+    favouritesRepository = MockFavouritesRepository();
+
+    favouritesProvider = FavouritesProvider(repository: favouritesRepository);
   });
 
-  tearDown(() {
-    viewModel.dispose();
-  });
+  Widget createWidget() {
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider<SearchViewModel>.value(value: viewModel),
 
-  Widget buildTestWidget() {
-    return MaterialApp(
-      home: ChangeNotifierProvider<SearchViewModel>.value(
-        value: viewModel,
-        child: SearchPage(),
-      ),
+        ChangeNotifierProvider<FavouritesProvider>.value(
+          value: favouritesProvider,
+        ),
+      ],
+
+      child: const MaterialApp(home: SearchPage()),
     );
   }
 
@@ -45,12 +57,7 @@ void main() {
       ),
     ).thenAnswer((_) => completer.future);
 
-    await tester.pumpWidget(
-      ChangeNotifierProvider<SearchViewModel>.value(
-        value: viewModel,
-        child: const MaterialApp(home: SearchPage()),
-      ),
-    );
+    await tester.pumpWidget(createWidget());
 
     viewModel.search('flutter');
 
@@ -58,18 +65,18 @@ void main() {
 
     expect(find.byType(CircularProgressIndicator), findsOneWidget);
 
-    // Finish the fake request before the test ends.
-    completer.complete(SearchResult(books: [], totalResults: 0));
+    completer.complete(const SearchResult(books: [], totalResults: 0));
 
     await tester.pumpAndSettle();
   });
 
   testWidgets('shows books when search returns results', (tester) async {
-    final book = Book(
+    const book = Book(
       workId: 'OL123W',
       title: 'Flutter Apprentice',
       authors: ['Eric Windmill'],
       firstPublishYear: 2020,
+
       coverId: null,
     );
 
@@ -78,14 +85,11 @@ void main() {
         query: any(named: 'query'),
         page: any(named: 'page'),
       ),
-    ).thenAnswer((_) async => SearchResult(books: [book], totalResults: 1));
-
-    await tester.pumpWidget(
-      ChangeNotifierProvider<SearchViewModel>.value(
-        value: viewModel,
-        child: const MaterialApp(home: SearchPage()),
-      ),
+    ).thenAnswer(
+      (_) async => const SearchResult(books: [book], totalResults: 1),
     );
+
+    await tester.pumpWidget(createWidget());
 
     await viewModel.search('flutter');
 
@@ -96,20 +100,44 @@ void main() {
     expect(find.textContaining('Eric Windmill'), findsOneWidget);
 
     expect(find.textContaining('2020'), findsOneWidget);
-  });
-  testWidgets('shows empty message for no results', (tester) async {
-    viewModel.debugSetState(const SearchEmpty());
 
-    await tester.pumpWidget(buildTestWidget());
+    // NEW:
+    // Search result should start
+    // with an empty heart.
+    expect(find.byIcon(Icons.favorite_border), findsOneWidget);
+  });
+
+  testWidgets('shows empty message for no results', (tester) async {
+    when(
+      () => repository.searchBooks(
+        query: any(named: 'query'),
+        page: any(named: 'page'),
+      ),
+    ).thenAnswer((_) async => SearchResult(books: [], totalResults: 0));
+
+    await tester.pumpWidget(createWidget());
+
+    await viewModel.search('something');
+
+    await tester.pump();
 
     expect(find.text('No books found'), findsOneWidget);
   });
 
   testWidgets('shows error message when search fails', (tester) async {
-    viewModel.debugSetState(const SearchError('Something went wrong.'));
+    when(
+      () => repository.searchBooks(
+        query: any(named: 'query'),
+        page: any(named: 'page'),
+      ),
+    ).thenThrow(const SearchException('Search failed'));
 
-    await tester.pumpWidget(buildTestWidget());
+    await tester.pumpWidget(createWidget());
 
-    expect(find.text('Something went wrong.'), findsOneWidget);
+    await viewModel.search('flutter');
+
+    await tester.pump();
+
+    expect(find.text('Search failed'), findsOneWidget);
   });
 }
