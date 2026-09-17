@@ -1,5 +1,7 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:bookshelf/app/router/app_router.dart';
+import 'package:bookshelf/favourites/providers/favourites_provider.dart';
+import 'package:bookshelf/search/models/book_model.dart';
 import 'package:bookshelf/search/view_models/search_state.dart';
 import 'package:bookshelf/search/view_models/search_view_model.dart';
 import 'package:flutter/material.dart';
@@ -64,7 +66,7 @@ class _InitialState extends StatelessWidget {
 }
 
 class _ResultsList extends StatelessWidget {
-  final List<dynamic> books;
+  final List<Book> books;
   final bool isLoadingMore;
   final Future<void> Function() onLoadMore;
 
@@ -76,6 +78,8 @@ class _ResultsList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final favouritesProvider = context.watch<FavouritesProvider>();
+
     return NotificationListener<ScrollNotification>(
       onNotification: (notification) {
         if (notification.metrics.pixels >=
@@ -97,22 +101,29 @@ class _ResultsList extends StatelessWidget {
 
           final book = books[index];
 
+          final isFavourite = favouritesProvider.isFavourite(book.workId);
+
           return ListTile(
             leading: book.coverId == null
                 ? const Icon(Icons.menu_book_outlined, size: 40)
                 : Image.network(book.coverUrl, width: 50, fit: BoxFit.cover),
+
             title: Text(book.title),
+
             subtitle: Text('${book.authorDisplay}\n${book.yearDisplay}'),
+
             isThreeLine: true,
+
+            trailing: IconButton(
+              icon: Icon(isFavourite ? Icons.favorite : Icons.favorite_border),
+              onPressed: () {
+                favouritesProvider.toggleFavourite(book);
+              },
+            ),
+
             onTap: () {
               context.router.push(BookDetailRoute(book: book));
             },
-            trailing: IconButton(
-              onPressed: () {
-                // Favourite functionality later.
-              },
-              icon: const Icon(Icons.favorite_border),
-            ),
           );
         },
       ),
