@@ -3,9 +3,10 @@ import 'package:sqflite/sqflite.dart';
 
 class AppDatabase {
   static const _databaseName = 'bookshelf.db';
-  static const _databaseVersion = 1;
+  static const _databaseVersion = 2;
 
   static const favouritesTable = 'favourites';
+  static const searchCacheTable = 'search_cache';
 
   Database? _database;
 
@@ -24,7 +25,12 @@ class AppDatabase {
 
     final path = join(databasePath, _databaseName);
 
-    return openDatabase(path, version: _databaseVersion, onCreate: _onCreate);
+    return openDatabase(
+      path,
+      version: _databaseVersion,
+      onCreate: _onCreate,
+      onUpgrade: _onUpgrade,
+    );
   }
 
   Future<void> _onCreate(Database db, int version) async {
@@ -37,6 +43,36 @@ class AppDatabase {
         cover_id INTEGER
       )
     ''');
+
+    await db.execute('''
+      CREATE TABLE $searchCacheTable (
+       id INTEGER PRIMARY KEY AUTOINCREMENT,
+        query TEXT NOT NULL,
+        work_id TEXT NOT NULL,
+        title TEXT NOT NULL,
+        authors TEXT NOT NULL,
+        first_publish_year INTEGER,
+        cover_id INTEGER,
+        position INTEGER NOT NULL
+      )
+    ''');
+  }
+
+  Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
+    if (oldVersion < 2) {
+      await db.execute('''
+       CREATE TABLE $searchCacheTable (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          query TEXT NOT NULL,
+          work_id TEXT NOT NULL,
+          title TEXT NOT NULL,
+          authors TEXT NOT NULL,
+          first_publish_year INTEGER,
+          cover_id INTEGER,
+          position INTEGER NOT NULL
+        )
+      ''');
+    }
   }
 
   Future<void> close() async {

@@ -14,20 +14,23 @@ class SearchPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final viewModel = context.watch<SearchViewModel>();
+
     final state = viewModel.state;
 
     return Scaffold(
       appBar: AppBar(
         title: const Text('Bookshelf'),
+
         actions: [
           IconButton(
+            icon: const Icon(Icons.favorite),
             onPressed: () {
-              context.router.push(FavouritesRoute());
+              context.router.push(const FavouritesRoute());
             },
-            icon: Icon(Icons.favorite),
           ),
         ],
       ),
+
       body: Column(
         children: [
           Padding(
@@ -41,6 +44,22 @@ class SearchPage extends StatelessWidget {
               ),
             ),
           ),
+
+          if (state case SearchResults(isOffline: true))
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+              child: const Row(
+                children: [
+                  Icon(Icons.cloud_off_outlined),
+                  SizedBox(width: 8),
+                  Expanded(
+                    child: Text('Offline - showing cached search results'),
+                  ),
+                ],
+              ),
+            ),
+
           Expanded(
             child: switch (state) {
               SearchInitial() => const _InitialState(),
@@ -77,7 +96,9 @@ class _InitialState extends StatelessWidget {
 
 class _ResultsList extends StatelessWidget {
   final List<Book> books;
+
   final bool isLoadingMore;
+
   final Future<void> Function() onLoadMore;
 
   const _ResultsList({
@@ -99,8 +120,10 @@ class _ResultsList extends StatelessWidget {
 
         return false;
       },
+
       child: ListView.builder(
         itemCount: books.length + (isLoadingMore ? 1 : 0),
+
         itemBuilder: (context, index) {
           if (index == books.length) {
             return const Padding(
@@ -120,12 +143,18 @@ class _ResultsList extends StatelessWidget {
 
             title: Text(book.title),
 
-            subtitle: Text('${book.authorDisplay}\n${book.yearDisplay}'),
+            subtitle: Text(
+              '${book.authorDisplay}\n'
+              '${book.yearDisplay}',
+            ),
 
             isThreeLine: true,
 
             trailing: IconButton(
+              key: Key('favourite-${book.workId}'),
+
               icon: Icon(isFavourite ? Icons.favorite : Icons.favorite_border),
+
               onPressed: () {
                 favouritesProvider.toggleFavourite(book);
               },

@@ -15,8 +15,13 @@ class SearchLoading extends SearchState {
 class SearchResults extends SearchState {
   final List<Book> books;
   final bool isLoadingMore;
+  final bool isOffline;
 
-  const SearchResults({required this.books, this.isLoadingMore = false});
+  const SearchResults({
+    required this.books,
+    this.isLoadingMore = false,
+    this.isOffline = false,
+  });
 }
 
 class SearchEmpty extends SearchState {

@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
+
 import 'package:bookshelf/search/repository/search_repository.dart';
 import 'package:bookshelf/search/view_models/search_state.dart';
 
@@ -14,8 +15,11 @@ class SearchViewModel extends ChangeNotifier {
   SearchState get state => _state;
 
   String _currentQuery = '';
+
   int _currentPage = 1;
+
   int _totalResults = 0;
+
   bool _isLoadingMore = false;
 
   Timer? _debounce;
@@ -24,17 +28,23 @@ class SearchViewModel extends ChangeNotifier {
     final trimmedQuery = query.trim();
 
     _currentQuery = trimmedQuery;
+
     _currentPage = 1;
+
     _totalResults = 0;
+
     _isLoadingMore = false;
 
     if (trimmedQuery.isEmpty) {
       _state = const SearchInitial();
+
       notifyListeners();
+
       return;
     }
 
     _state = const SearchLoading();
+
     notifyListeners();
 
     try {
@@ -45,7 +55,10 @@ class SearchViewModel extends ChangeNotifier {
       if (result.books.isEmpty) {
         _state = const SearchEmpty();
       } else {
-        _state = SearchResults(books: result.books);
+        _state = SearchResults(
+          books: result.books,
+          isOffline: result.isOffline,
+        );
       }
     } on SearchException catch (error) {
       _state = SearchError(error.message);
@@ -81,7 +94,13 @@ class SearchViewModel extends ChangeNotifier {
 
     _isLoadingMore = true;
 
-    _state = SearchResults(books: currentState.books, isLoadingMore: true);
+    _state = SearchResults(
+      books: currentState.books,
+
+      isLoadingMore: true,
+
+      isOffline: currentState.isOffline,
+    );
 
     notifyListeners();
 
@@ -95,13 +114,26 @@ class SearchViewModel extends ChangeNotifier {
 
       _currentPage = nextPage;
 
-      _state = SearchResults(books: [...currentState.books, ...result.books]);
+      _totalResults = result.totalResults;
+
+      _state = SearchResults(
+        books: [...currentState.books, ...result.books],
+
+        isOffline: result.isOffline,
+      );
     } on SearchException {
-      _state = SearchResults(books: currentState.books);
+      _state = SearchResults(
+        books: currentState.books,
+        isOffline: currentState.isOffline,
+      );
     } catch (_) {
-      _state = SearchResults(books: currentState.books);
+      _state = SearchResults(
+        books: currentState.books,
+        isOffline: currentState.isOffline,
+      );
     } finally {
       _isLoadingMore = false;
+
       notifyListeners();
     }
   }
@@ -109,12 +141,14 @@ class SearchViewModel extends ChangeNotifier {
   @visibleForTesting
   void debugSetState(SearchState state) {
     _state = state;
+
     notifyListeners();
   }
 
   @override
   void dispose() {
     _debounce?.cancel();
+
     super.dispose();
   }
 }
