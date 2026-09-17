@@ -26,8 +26,19 @@ class _BookshelfAppState extends State<BookshelfApp> {
   Widget build(BuildContext context) {
     return Provider<AppDependencies>.value(
       value: _dependencies,
-      child: ChangeNotifierProvider(
-        create: (_) => _dependencies.createSearchViewModel(),
+
+      child: MultiProvider(
+        providers: [
+          ChangeNotifierProvider(
+            create: (_) => _dependencies.createSearchViewModel(),
+          ),
+
+          ChangeNotifierProvider(
+            create: (_) =>
+                _dependencies.createFavouritesProvider()..loadFavourites(),
+          ),
+        ],
+
         child: MaterialApp.router(
           debugShowCheckedModeBanner: false,
           title: 'Bookshelf',

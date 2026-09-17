@@ -55,6 +55,22 @@ class BookDetailRouteArgs {
 }
 
 /// generated route for
+/// [FavouritesPage]
+class FavouritesRoute extends PageRouteInfo<void> {
+  const FavouritesRoute({List<PageRouteInfo>? children})
+    : super(FavouritesRoute.name, initialChildren: children);
+
+  static const String name = 'FavouritesRoute';
+
+  static PageInfo page = PageInfo(
+    name,
+    builder: (data) {
+      return const FavouritesPage();
+    },
+  );
+}
+
+/// generated route for
 /// [SearchPage]
 class SearchRoute extends PageRouteInfo<void> {
   const SearchRoute({List<PageRouteInfo>? children})
