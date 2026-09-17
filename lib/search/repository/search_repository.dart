@@ -1,7 +1,6 @@
-import 'dart:convert';
-import 'package:bookshelf/network/http_client.dart';
-import 'package:bookshelf/search/services/open_library_remote_data_source.dart';
-import '../models/book_model.dart';
+import 'package:bookshelf/search/services/book_remote_data_source.dart';
+import 'package:bookshelf/search/services/search_cache_data_source.dart';
+
 import '../models/search_result_model.dart';
 
 class SearchException implements Exception {
@@ -10,58 +9,61 @@ class SearchException implements Exception {
   const SearchException(this.message);
 
   @override
-  String toString() => 'SearchException: $message';
+  String toString() {
+    return 'SearchException: $message';
+  }
 }
 
 class SearchRepository {
-  final HttpClient httpClient;
+  final BookRemoteDataSource remoteDataSource;
+
+  final SearchCacheDataSource cacheDataSource;
 
   SearchRepository({
-    required this.httpClient,
-    required OpenLibraryRemoteDataSource remoteDataSource,
+    required this.remoteDataSource,
+    required this.cacheDataSource,
   });
 
   Future<SearchResult> searchBooks({
     required String query,
     required int page,
   }) async {
-    final encodedQuery = Uri.encodeQueryComponent(query);
-
-    final response = await httpClient.get(
-      'https://openlibrary.org/search.json?q=$encodedQuery&page=$page',
-    );
-
-    if (response.statusCode < 200 || response.statusCode >= 300) {
-      throw SearchException(
-        'Search request failed with status ${response.statusCode}',
-      );
-    }
-
     try {
-      final decoded = jsonDecode(response.body);
+      final result = await remoteDataSource.searchBooks(
+        query: query,
+        page: page,
+      );
 
-      if (decoded is! Map<String, dynamic>) {
-        throw const SearchException('Unexpected response format');
+      if (page == 1) {
+        await cacheDataSource.saveSearchResults(
+          query: query,
+          books: result.books,
+        );
       }
 
-      final rawDocs = decoded['docs'];
-
-      if (rawDocs is! List) {
-        throw const SearchException('Missing or invalid docs field');
-      }
-
-      final books = rawDocs
-          .whereType<Map<String, dynamic>>()
-          .map(Book.fromMap)
-          .toList();
-
-      final totalResults = (decoded['numFound'] as num?)?.toInt() ?? 0;
-
-      return SearchResult(books: books, totalResults: totalResults);
-    } on SearchException {
-      rethrow;
+      return SearchResult(
+        books: result.books,
+        totalResults: result.totalResults,
+        isOffline: false,
+      );
     } catch (_) {
-      throw const SearchException('Failed to parse search response');
+      if (page != 1) {
+        rethrow;
+      }
+
+      final cachedBooks = await cacheDataSource.getCachedResults(query: query);
+
+      if (cachedBooks.isNotEmpty) {
+        return SearchResult(
+          books: cachedBooks,
+          totalResults: cachedBooks.length,
+          isOffline: true,
+        );
+      }
+
+      throw const SearchException(
+        'Unable to load books. Check your internet connection.',
+      );
     }
   }
 }

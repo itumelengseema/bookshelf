@@ -23,14 +23,16 @@ class FavouritesProvider extends ChangeNotifier {
   Future<void> loadFavourites() async {
     _isLoading = true;
     _errorMessage = null;
+
     notifyListeners();
 
     try {
-      _favourites = await repository.getFavourites();
+      _favourites = List.of(await repository.getFavourites());
     } catch (_) {
       _errorMessage = 'Failed to load favourites.';
     } finally {
       _isLoading = false;
+
       notifyListeners();
     }
   }
@@ -56,9 +58,11 @@ class FavouritesProvider extends ChangeNotifier {
       }
 
       _errorMessage = null;
+
       notifyListeners();
     } catch (_) {
       _errorMessage = 'Failed to update favourites.';
+
       notifyListeners();
     }
   }
