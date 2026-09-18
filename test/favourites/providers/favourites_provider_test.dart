@@ -1,7 +1,7 @@
-import 'package:bookshelf/favourites/models/favourite_book_model.dart';
-import 'package:bookshelf/favourites/providers/favourites_provider.dart';
-import 'package:bookshelf/favourites/repository/favourites_repository.dart';
-import 'package:bookshelf/search/models/book_model.dart';
+import 'package:bookshelf/features/favourites/domain/entities/favourite_book.dart';
+import 'package:bookshelf/features/favourites/presentation/providers/favourites_provider.dart';
+import 'package:bookshelf/features/favourites/domain/repositories/favourites_repository.dart';
+import 'package:bookshelf/core/domain/entities/book.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 

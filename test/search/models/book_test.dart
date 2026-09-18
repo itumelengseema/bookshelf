@@ -1,4 +1,4 @@
-import 'package:bookshelf/search/models/book_model.dart';
+import 'package:bookshelf/core/domain/entities/book.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {

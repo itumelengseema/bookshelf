@@ -1,6 +1,7 @@
-import 'package:bookshelf/book_details/repository/book_detail_repository.dart';
-import 'package:bookshelf/book_details/services/open_library_book_detail_data_source.dart';
-import 'package:bookshelf/network/http_client.dart';
+import 'package:bookshelf/features/book_details/data/repositories/book_detail_repository_impl.dart';
+import 'package:bookshelf/features/book_details/data/datasources/open_library_book_detail_data_source.dart';
+import 'package:bookshelf/features/book_details/domain/repositories/book_detail_repository.dart';
+import 'package:bookshelf/core/network/http_client.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
@@ -16,7 +17,7 @@ void main() {
 
     remoteDataSource = OpenLibraryBookDetailDataSource(httpClient: httpClient);
 
-    repository = BookDetailRepository(remoteDataSource: remoteDataSource);
+    repository = BookDetailRepositoryImpl(remoteDataSource: remoteDataSource);
   });
 
   group('BookDetailRepository.getBookDetail', () {

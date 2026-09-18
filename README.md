@@ -97,7 +97,7 @@ Favourites remain readable offline because they are stored locally.
 
 ## Architecture
 
-The project follows a feature-first layered architecture.
+The project follows a feature-first Clean Architecture. Shared infrastructure is kept in `core`, while each feature owns its domain, data, and presentation code.
 
 ```text
 lib/
@@ -106,44 +106,60 @@ lib/
 │   ├── bookshelf_app.dart
 │   └── router/
 │
-├── database/
-│   └── app_database.dart
+├── core/
+│   ├── database/
+│   │   └── app_database.dart
+│   ├── domain/entities/
+│   │   └── book.dart
+│   └── network/
+│       ├── app_http_client.dart
+│       └── http_client.dart
 │
-├── network/
-│   ├── app_http_client.dart
-│   └── http_client.dart
+├── features/
+│   ├── search/
+│   │   ├── data/
+│   │   │   ├── datasources/
+│   │   │   └── repositories/
+│   │   ├── domain/
+│   │   │   ├── entities/
+│   │   │   └── repositories/
+│   │   └── presentation/
+│   │       ├── view_models/
+│   │       └── views/
 │
-├── search/
-│   ├── models/
-│   ├── repository/
-│   ├── services/
-│   ├── view_models/
-│   └── views/
+│   ├── book_details/
+│   │   ├── data/
+│   │   │   ├── datasources/
+│   │   │   └── repositories/
+│   │   ├── domain/
+│   │   │   ├── entities/
+│   │   │   └── repositories/
+│   │   └── presentation/
+│   │       ├── view_models/
+│   │       └── views/
 │
-├── book_details/
-│   ├── repository/
-│   ├── services/
-│   ├── view_models/
-│   └── views/
-│
-└── favourites/
-    ├── models/
-    ├── providers/
-    ├── repository/
-    ├── services/
-    └── views/
+│   └── favourites/
+│       ├── data/
+│       │   ├── datasources/
+│       │   └── repositories/
+│       ├── domain/
+│       │   ├── entities/
+│       │   └── repositories/
+│       └── presentation/
+│           ├── providers/
+│           └── views/
 ```
 
 The main application flow is:
 
 ```text
-UI
+Presentation
 ↓
-ViewModel / Provider
+Domain repository contract
 ↓
-Repository
+Data repository implementation
 ↓
-Data Source
+Data source
 ↓
 HTTP or SQLite
 ```
@@ -170,15 +186,18 @@ Widgets are responsible for displaying state and handling user interaction. API 
 
 Repositories sit between the presentation layer and the data sources.
 
-The project contains:
+The project contains domain contracts and data implementations:
 
 ```text
 SearchRepository
+SearchRepositoryImpl
 BookDetailRepository
+BookDetailRepositoryImpl
 FavouritesRepository
+FavouritesRepositoryImpl
 ```
 
-The repository layer makes it easier for the presentation layer to work with data without needing to know whether the data comes from an API or SQLite.
+The domain contracts keep presentation code independent of HTTP and SQLite. The data implementations connect those contracts to the concrete data sources.
 
 The `SearchRepository` also coordinates remote search data and cached search data.
 
@@ -214,7 +233,7 @@ For example:
 ```text
 AppDependencies
 ↓
-SearchRepository
+SearchRepositoryImpl
 ├── OpenLibraryRemoteDataSource
 └── SqliteSearchCacheDataSource
 ```
@@ -447,6 +466,12 @@ Generate AutoRoute files:
 
 ```bash
 dart run build_runner build
+```
+
+To regenerate routes after changing route declarations while removing stale generated outputs, run:
+
+```bash
+dart run build_runner build --delete-conflicting-outputs
 ```
 
 Run the application:

@@ -1,13 +1,13 @@
-import 'package:bookshelf/database/app_database.dart';
-import 'package:bookshelf/favourites/models/favourite_book_model.dart';
-import 'package:bookshelf/favourites/repository/favourites_repository.dart';
-import 'package:bookshelf/favourites/services/favourites_local_data_source.dart';
+import 'package:bookshelf/core/database/app_database.dart';
+import 'package:bookshelf/features/favourites/domain/entities/favourite_book.dart';
+import 'package:bookshelf/features/favourites/data/repositories/favourites_repository.dart';
+import 'package:bookshelf/features/favourites/data/datasources/favourites_local_data_source.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 void main() {
   late AppDatabase appDatabase;
-  late FavouritesRepository repository;
+  late FavouritesRepositoryImpl repository;
 
   const testBook = FavouriteBook(
     workId: 'OL123W',
@@ -29,7 +29,7 @@ void main() {
       appDatabase: appDatabase,
     );
 
-    repository = FavouritesRepository(localDataSource: localDataSource);
+    repository = FavouritesRepositoryImpl(localDataSource: localDataSource);
 
     final db = await appDatabase.database;
 
@@ -80,7 +80,7 @@ void main() {
       appDatabase: appDatabase,
     );
 
-    final restartedRepository = FavouritesRepository(
+    final restartedRepository = FavouritesRepositoryImpl(
       localDataSource: restartedDataSource,
     );
 

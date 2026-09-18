@@ -1,12 +1,12 @@
 import 'dart:async';
 
-import 'package:bookshelf/favourites/providers/favourites_provider.dart';
-import 'package:bookshelf/favourites/repository/favourites_repository.dart';
-import 'package:bookshelf/search/models/book_model.dart';
-import 'package:bookshelf/search/models/search_result_model.dart';
-import 'package:bookshelf/search/repository/search_repository.dart';
-import 'package:bookshelf/search/view_models/search_view_model.dart';
-import 'package:bookshelf/search/views/search_page.dart';
+import 'package:bookshelf/features/favourites/presentation/providers/favourites_provider.dart';
+import 'package:bookshelf/features/favourites/domain/repositories/favourites_repository.dart';
+import 'package:bookshelf/core/domain/entities/book.dart';
+import 'package:bookshelf/features/search/domain/entities/search_result.dart';
+import 'package:bookshelf/features/search/domain/repositories/search_repository.dart';
+import 'package:bookshelf/features/search/presentation/view_models/search_view_model.dart';
+import 'package:bookshelf/features/search/presentation/views/search_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';

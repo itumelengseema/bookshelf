@@ -1,10 +1,9 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/cupertino.dart';
-
-import '../../book_details/views/book_detail_page.dart';
-import '../../favourites/views/favourites_page.dart';
-import '../../search/models/book_model.dart';
-import '../../search/views/search_page.dart';
+import '../../core/domain/entities/book.dart';
+import '../../features/book_details/presentation/views/book_detail_page.dart';
+import '../../features/favourites/presentation/views/favourites_page.dart';
+import '../../features/search/presentation/views/search_page.dart';
 
 part 'app_router.gr.dart';
 
