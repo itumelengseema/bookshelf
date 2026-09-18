@@ -1,6 +1,7 @@
-import 'package:bookshelf/book_details/repository/book_detail_repository.dart';
-import 'package:bookshelf/book_details/view_models/book_detail_state.dart';
-import 'package:flutter/foundation.dart';
+import 'package:flutter/cupertino.dart';
+
+import '../repository/book_detail_repository.dart';
+import 'book_detail_state.dart';
 
 class BookDetailViewModel extends ChangeNotifier {
   final BookDetailRepository repository;

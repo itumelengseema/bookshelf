@@ -1,4 +1,4 @@
-import 'package:bookshelf/search/models/book_detail_model.dart';
+import '../../search/models/book_detail_model.dart';
 
 sealed class BookDetailState {
   const BookDetailState();

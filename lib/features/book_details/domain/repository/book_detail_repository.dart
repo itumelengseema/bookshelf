@@ -1,5 +1,5 @@
-import 'package:bookshelf/book_details/services/book_detail_remote_data_source.dart';
-import 'package:bookshelf/search/models/book_detail_model.dart';
+import '../../search/models/book_detail_model.dart';
+import '../data/services/book_detail_remote_data_source.dart';
 
 class BookDetailException implements Exception {
   final String message;
