@@ -1,6 +1,6 @@
-import 'package:bookshelf/database/app_database.dart';
-import 'package:bookshelf/search/models/book_model.dart';
-import 'package:bookshelf/search/services/search_cache_data_source.dart';
+import 'package:bookshelf/core/database/app_database.dart';
+import 'package:bookshelf/core/domain/entities/book.dart';
+import 'package:bookshelf/features/search/data/datasources/search_cache_data_source.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 

@@ -1,7 +1,8 @@
-import 'package:bookshelf/book_details/repository/book_detail_repository.dart';
-import 'package:bookshelf/book_details/view_models/book_detail_state.dart';
-import 'package:bookshelf/book_details/view_models/book_detail_view_model.dart';
-import 'package:bookshelf/search/models/book_detail_model.dart' show BookDetail;
+import 'package:bookshelf/features/book_details/domain/repositories/book_detail_repository.dart';
+import 'package:bookshelf/features/book_details/presentation/view_models/book_detail_state.dart';
+import 'package:bookshelf/features/book_details/presentation/view_models/book_detail_view_model.dart';
+import 'package:bookshelf/features/book_details/domain/entities/book_detail.dart'
+    show BookDetail;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 

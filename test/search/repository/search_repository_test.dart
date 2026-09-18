@@ -1,8 +1,9 @@
-import 'package:bookshelf/network/http_client.dart';
-import 'package:bookshelf/search/models/book_model.dart';
-import 'package:bookshelf/search/repository/search_repository.dart';
-import 'package:bookshelf/search/services/open_library_remote_data_source.dart';
-import 'package:bookshelf/search/services/search_cache_data_source.dart';
+import 'package:bookshelf/core/network/http_client.dart';
+import 'package:bookshelf/core/domain/entities/book.dart';
+import 'package:bookshelf/features/search/data/repositories/search_repository.dart';
+import 'package:bookshelf/features/search/data/datasources/open_library_remote_data_source.dart';
+import 'package:bookshelf/features/search/data/datasources/search_cache_data_source.dart';
+import 'package:bookshelf/features/search/domain/repositories/search_repository.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
@@ -24,7 +25,7 @@ void main() {
 
     remoteDataSource = OpenLibraryRemoteDataSource(httpClient: httpClient);
 
-    repository = SearchRepository(
+    repository = SearchRepositoryImpl(
       remoteDataSource: remoteDataSource,
       cacheDataSource: cacheDataSource,
     );

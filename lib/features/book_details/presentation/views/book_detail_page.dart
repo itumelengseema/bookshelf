@@ -2,9 +2,8 @@ import 'package:auto_route/auto_route.dart';
 import 'package:bookshelf/app/app_dependencies.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
-import '../../favourites/providers/favourites_provider.dart';
-import '../../search/models/book_model.dart';
+import '../../../../core/domain/entities/book.dart';
+import '../../../favourites/presentation/providers/favourites_provider.dart';
 import '../view_models/book_detail_state.dart';
 import '../view_models/book_detail_view_model.dart' show BookDetailViewModel;
 

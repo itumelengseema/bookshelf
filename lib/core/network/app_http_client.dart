@@ -1,5 +1,6 @@
 import 'package:http/http.dart' as http;
-import 'package:bookshelf/network/http_client.dart';
+
+import 'http_client.dart';
 
 class AppHttpClient implements HttpClient {
   final http.Client client;
